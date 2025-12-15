@@ -4,9 +4,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    volumes:
+      - ./backend:/var/www/html
     container_name: backend
     ports:
       - "8000:8000"
+    depends_on:
+      - mysql
     networks:
       - app-network
 
@@ -35,6 +39,20 @@ services:
       - backend
     networks:
       - app-network
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: event_manager
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  db_data:
 
 networks:
   app-network:
