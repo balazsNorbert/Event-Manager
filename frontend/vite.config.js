@@ -18,6 +18,11 @@ export default defineConfig({
     },
     host: '0.0.0.0',
     port: 5173,
+    hmr: {
+      protocol: 'wss',
+      clientPort: 443
+    },
+    watch: { usePolling: true }
   },
   resolve: {
     alias: {
