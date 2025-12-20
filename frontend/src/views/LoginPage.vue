@@ -13,7 +13,6 @@
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
-import { setAuthHeader } from '../axios';
 
 const email = ref('');
 const password = ref('');
@@ -24,7 +23,6 @@ const router = useRouter();
 const handleLogin = async () => {
   try {
     await auth.login(email.value, password.value);
-    setAuthHeader();
     router.push('/events');
   } catch (err) {
     console.error(err);

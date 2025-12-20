@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { useAuthStore } from './stores/auth';
 
 axios.defaults.baseURL = '/api';
 
-export function setAuthHeader() {
-  const auth = useAuthStore();
-  if (auth.token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;
-  } else {
-    delete axios.defaults.headers.common['Authorization'];
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-}
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 export default axios;
