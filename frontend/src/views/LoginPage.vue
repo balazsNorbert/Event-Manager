@@ -1,32 +1,19 @@
 <template>
-  <div>
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
-      <input v-model="email" placeholder="Email" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="error">{{ error }}</p>
+  <div class="min-h-screen flex flex-col items-center justify-center bg-linear-to-tr from-blue-200 to-cyan-200">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
+      <div v-if="view === 'login'">
+        <LoginForm @show-forgot="view = 'forgot'" />
+      </div>
+      <div v-else>
+        <ForgotPassword @show-login="view = 'login'" />
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
-import { ref } from 'vue';
-import { useAuthStore } from '../stores/auth';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import LoginForm from '../components/LoginForm.vue'
+import ForgotPassword from '../components/ForgotPassword.vue'
 
-const email = ref('');
-const password = ref('');
-const error = ref('');
-const auth = useAuthStore();
-const router = useRouter();
-
-const handleLogin = async () => {
-  try {
-    await auth.login(email.value, password.value);
-    router.push('/events');
-  } catch (err) {
-    console.error(err);
-    error.value = 'Login failed';
-  }
-};
+const view = ref('login')
 </script>
