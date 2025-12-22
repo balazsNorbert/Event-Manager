@@ -14,7 +14,7 @@ class EventController extends Controller
     public function index()
     {
         $user = JWTAuth::parseToken()->authenticate();
-        return $user->events->orderBy('occurrence')->get();
+        return $user->events()->orderBy('occurrence', 'asc')->get();
     }
 
     /**
@@ -44,9 +44,10 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Event $event)
+    public function update(Request $request, $id)
     {
-        $this->authorizeEvent($event);
+        $user = JWTAuth::parseToken()->authenticate();
+        $event = $user->events()->where('id', $id)->firstOrFail();
 
         $data = $request->validate([
             'description' => 'nullable|string',
@@ -60,20 +61,14 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Event $event)
+    public function destroy(Event $event, $id)
     {
-        $this->authorizeEvent($event);
+        $user = JWTAuth::parseToken()->authenticate();
+        $event = $user->events()->where('id', $id)->firstOrFail();
 
         $event->delete();
 
         return response()->json(null, 204);
     }
 
-    private function authorizeEvent(Event $event)
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        if ($event->user_id !== $user->id()) {
-            abort(403, 'Unauthorized');
-        }
-    }
 }
