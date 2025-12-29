@@ -18,9 +18,17 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        $user = JWTAuth::user();
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
+            'user' => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role,
+            ],
         ]);
     }
 
