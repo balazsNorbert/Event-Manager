@@ -135,6 +135,7 @@
       <LogOut :size="18" class="group-hover:-translate-x-1 transition-transform duration-200" />
       Logout
     </button>
+    <ChatWidget />
   </div>
 </template>
 
@@ -144,6 +145,7 @@ import api from '../axios'
 import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
 import { Pencil, CalendarDays, Plus, LogOut } from 'lucide-vue-next'
+import ChatWidget from '../components/ChatWidget.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
