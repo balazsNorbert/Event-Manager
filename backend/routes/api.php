@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
@@ -17,4 +19,12 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/events', [EventController::class, 'store']);
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    Route::get('/chat/get', [ChatController::class, 'getMessages']);
+    Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+    Route::post('/chat/clear', [ChatController::class, 'clearChat']);
+    Route::middleware(['is_agent'])->group(function () {
+      Route::get('/agent/pending', [AgentController::class, 'pendingChats']);
+      Route::post('/agent/reply', [AgentController::class, 'reply']);
+      Route::post('/chats/{userId}/close', [AgentController::class, 'closeChat']);
+    });
 });

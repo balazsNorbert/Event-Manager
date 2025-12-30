@@ -43,7 +43,11 @@ const router = useRouter()
 const handleLogin = async () => {
   try {
     await auth.login(email.value, password.value)
-    router.push('/events')
+    if (auth.user?.role === 'agent') {
+      router.push('/agent-dashboard')
+    } else {
+      router.push('/events')
+    }
   } catch (err) {
     console.error(err)
     error.value = 'Login failed'
