@@ -21,7 +21,7 @@
           v-for="(msg, idx) in messages"
           :key="idx"
           :class="[
-            'max-w-4/5 p-3 rounded-2xl text-sm shadow-sm',
+            'max-w-4/5 p-3 rounded-2xl text-sm shadow-sm relative',
             msg.sender_type === 'user' ? 'bg-teal-500 text-white self-end rounded-br-none' : '',
             msg.sender_type === 'bot' ? 'bg-white text-gray-700 self-start rounded-bl-none' : '',
             msg.sender_type === 'agent' ? 'bg-blue-600 text-white self-start rounded-bl-none' : '',
@@ -30,7 +30,19 @@
           <p v-if="msg.sender_type === 'agent'" class="text-xs mb-1 opacity-70 uppercase font-bold">
             Support Agent
           </p>
-          <p class="text-xs md:text-sm">{{ msg.message }}</p>
+          <p class="text-xs md:text-sm mb-4">{{ msg.message }}</p>
+          <button
+            @click="speakResponse(msg.message)"
+            :class="[
+              'absolute bottom-2 right-2 text-gray-500',
+              msg.sender_type === 'user' ? 'text-white' : '',
+              msg.sender_type === 'bot' ? 'text-gray-700' : '',
+              msg.sender_type === 'agent' ? 'text-white' : '',
+            ]"
+            title="Listen to message"
+          >
+            <Volume2 :size="14" />
+          </button>
         </div>
         <div v-if="messages.length > 1" class="flex justify-center py-2">
           <button
@@ -66,6 +78,20 @@
         </div>
       </div>
       <div class="p-4 border-t border-gray-100 bg-white flex items-center gap-2">
+        <button
+          @click="startVoiceInput"
+          type="button"
+          :class="[
+            'p-2 rounded-full transition-all duration-200',
+            isListening
+              ? 'bg-red-500 text-white animate-pulse shadow-md'
+              : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+          ]"
+          title="Voice Input"
+        >
+          <Mic v-if="!isListening" :size="20" />
+          <MicOff v-else :size="20" />
+        </button>
         <input
           v-model="newMessage"
           type="text"
@@ -90,13 +116,14 @@
 <script setup>
 import { ref, watch, nextTick, onMounted } from 'vue'
 import axios from '../axios'
-import { MessageCircle, X, Send, Trash2 } from 'lucide-vue-next'
+import { MessageCircle, X, Send, Trash2, Mic, MicOff, Volume2 } from 'lucide-vue-next'
 
 const isOpen = ref(false)
 const newMessage = ref('')
 const messages = ref([])
 const chatContainer = ref(null)
 const showDeleteConfirm = ref(false)
+const isListening = ref(false)
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -174,5 +201,35 @@ const handlePermanentDelete = async () => {
     console.error('Failed to delete chat history:', error)
     alert('Could not clear chat. Please try again.')
   }
+}
+
+const startVoiceInput = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    alert("Your browser doesn't support speech recognition!")
+    return
+  }
+
+  const recognition = new SpeechRecognition()
+  recognition.lang = 'en-US'
+  isListening.value = true
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript
+    newMessage.value = transcript
+    isListening.value = false
+  }
+
+  recognition.onerror = () => {
+    isListening.value = false
+  }
+
+  recognition.start()
+}
+
+const speakResponse = (text) => {
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'en-US'
+  window.speechSynthesis.speak(utterance)
 }
 </script>
