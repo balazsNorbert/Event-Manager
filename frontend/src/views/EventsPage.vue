@@ -59,7 +59,7 @@
           <h2 class="text-lg md:text-xl font-bold text-gray-800 mb-2">{{ event.title }}</h2>
           <h3 class="flex items-center gap-2 text-sm font-medium text-teal-600 mb-3">
             <CalendarDays />
-            {{ event.occurrence }}
+            {{ formatTime(event.occurrence) }}
           </h3>
           <div v-if="editingId === event.id">
             <textarea
@@ -156,6 +156,18 @@ const showDeleteModal = ref(false)
 const eventToDelete = ref(null)
 const isCreating = ref(false)
 const newEvent = ref({ title: '', occurrence: '', description: '' })
+
+const formatTime = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 const handleLogout = () => {
   auth.logout()
