@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from './stores/auth';
+import router from './router/index';
 
 axios.defaults.baseURL = '/api';
 
@@ -20,7 +21,9 @@ axios.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       const authStore = useAuthStore();
       authStore.logout();
-      window.location.href = '/';
+      if (router.currentRoute.value.path !== '/') {
+        router.push('/');
+      }
     }
     return Promise.reject(error);
   }

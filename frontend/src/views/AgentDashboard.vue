@@ -18,7 +18,7 @@
         >
           <div class="flex justify-between items-start">
             <p class="font-semibold text-gray-900">{{ chat.name }}</p>
-            <span class="text-xs text-gray-400 text-right">{{ formatTime(chat.updated_at) }}</span>
+            <span class="text-xs text-gray-400 text-right">{{ formatTime(chat.messages[0].created_at) }}</span>
           </div>
         </div>
         <div v-if="pendingChats.length === 0" class="p-10 text-center text-gray-400">
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col relative">
       <template v-if="selectedChat">
         <div class="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
           <div>
@@ -37,9 +37,38 @@
             </p>
           </div>
         </div>
-        <button @click="closeCurrentChat" class="bg-red-500 text-white px-4 py-2 rounded">
+        <button
+          @click="showCloseConfirm = true"
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+        >
           Close Conversation
         </button>
+        <div
+          v-if="showCloseConfirm"
+          class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/10 backdrop-blur-sm"
+        >
+          <div class="bg-white rounded-2xl p-5 max-w-md shadow-2xl border border-gray-100">
+            <div class="flex flex-col items-center text-center">
+              <p class="text-gray-600 text-lg mb-4 font-medium">
+                Do you really want to close this conversation?
+              </p>
+              <div class="flex gap-2 w-full">
+                <button
+                  @click="showCloseConfirm = false"
+                  class="flex-1 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="confirmCloseConversation"
+                  class="flex-1 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 shadow-md shadow-red-200"
+                >
+                  Yes, close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div ref="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
           <div
             v-for="msg in selectedChat.messages.slice().reverse()"
@@ -103,6 +132,7 @@ const agentReplyText = ref('')
 const auth = useAuthStore()
 const router = useRouter()
 const chatContainer = ref(null)
+const showCloseConfirm = ref(false)
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -179,15 +209,16 @@ const handleLogout = () => {
   router.push('/')
 }
 
-const closeCurrentChat = async () => {
+const confirmCloseConversation = async () => {
   if (!selectedChat.value) return
 
   try {
     await axios.post(`/chats/${selectedChat.value.id}/close`)
     pendingChats.value = pendingChats.value.filter((c) => c.id !== selectedChat.value.id)
     selectedChat.value = null
-    alert('Chat closed and moved to archive.')
+    showCloseConfirm.value = false
   } catch (err) {
+    showCloseConfirm.value = false
     console.error('Failed to close chat', err)
   }
 }
