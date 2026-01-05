@@ -34,9 +34,12 @@ class ChatController extends Controller
             'Content-Type' => 'application/json',
         ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . env('GEMINI_API_KEY'), [
             'contents' => [
-                ['parts' => [['text' => "You are a Helpdesk Assistant for an Event Manager Web App. Users can: Create events (title, date, description),
-                list events, update descriptions, or delete events. If the user wants to talk to a human or agent, answer: 'I am transferring you to a human
-                agent now.' If they ask about password reset, tell them to use the 'Forgot Password' link on the login page. Your goal is to support the user.
+                ['parts' => [['text' => "You are a Helpdesk Assistant for an Event Manager Web App. Users can manage events on their Dashboard.
+                To Create: Use the 'Create New Event' button and fill the form.
+                To Edit/Delete: These options are found directly on each event card in the list. Look for the pencil icon to edit and the 'Delete event' button to delete an event.
+                If they forgot password: Use the 'Forgot Password' link on the login page.
+                Human Agent: If they want a human or an agent, you MUST say: 'I am transferring you to a human agent now. Your goal is to support the user
+                only regarding the Event Manager Web App.
                 If they greet you, greet them back. If they ask a question, answer it briefly. If their input is unclear, ask for clarification politely.
                 Always respond in their language. The user reply is:" . $userText]]]
             ]
