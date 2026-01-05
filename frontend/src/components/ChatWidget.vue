@@ -114,7 +114,7 @@
   </div>
 </template>
 <script setup>
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import axios from '../axios'
 import { MessageCircle, X, Send, Trash2, Mic, MicOff, Volume2 } from 'lucide-vue-next'
 
@@ -124,6 +124,7 @@ const messages = ref([])
 const chatContainer = ref(null)
 const showDeleteConfirm = ref(false)
 const isListening = ref(false)
+let fetchInterval = null;
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -158,14 +159,24 @@ const fetchMessages = async () => {
       scrollToBottom()
     }
   } catch (error) {
-    console.error('Error loading messages:', error)
+    if (error.response?.status === 401) {
+      console.log("Chat session expired, stopping polling.");
+      clearInterval(fetchInterval);
+    }
   }
 }
 
 onMounted(() => {
   fetchMessages()
-  setInterval(fetchMessages, 5000)
+  fetchInterval = setInterval(fetchMessages, 5000)
   scrollToBottom()
+})
+
+onUnmounted(() => {
+  if (fetchInterval) {
+    clearInterval(fetchInterval);
+    console.log("Chat polling stopped.");
+  }
 })
 
 const sendMessage = async () => {
