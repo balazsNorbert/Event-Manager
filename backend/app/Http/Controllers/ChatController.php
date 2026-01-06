@@ -30,6 +30,17 @@ class ChatController extends Controller
             'sender_type' => 'user'
         ]);
 
+        $hasAgentResponded = Message::where('user_id', $user->id)
+                                ->where('sender_type', 'agent')
+                                ->exists();
+
+        if ($hasAgentResponded) {
+            return response()->json([
+                'reply' => null,
+                'is_waiting_for_agent' => true
+            ]);
+        }
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . env('GEMINI_API_KEY'), [
