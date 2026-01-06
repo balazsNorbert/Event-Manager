@@ -64,3 +64,12 @@ docker compose up -d --build
 ```bash
 docker compose exec backend php artisan migrate --seed
 ```
+
+## 📚 Sources & Resources
+
+- **Core Frameworks:** [Laravel 12 Docs](https://laravel.com/docs), [Vue.js 3 Guide](https://vuejs.org/)
+- **AI Integration:** [Google Gemini API Documentation](https://ai.google.dev/docs)
+- **Learning & Troubleshooting:**
+  - Google Gemini AI
+  - Stackoverflow
+  - YouTube
